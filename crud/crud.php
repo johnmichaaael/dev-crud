@@ -45,8 +45,8 @@
                     <a class="dropdown-item" href="../dashboard.php">Dashboard</a>
                     <a class="dropdown-item" href="#">Employees</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-warning" href="reset-password.php">Reset Your Password</a>
-                    <a class="dropdown-item text-danger" href="logout.php">Sign Out of Your Account</a>
+                    <a class="dropdown-item text-warning" href="../reset-password.php">Reset Your Password</a>
+                    <a class="dropdown-item text-danger" href="../logout.php">Sign Out of Your Account</a>
                 </div>
             </li>
         </ul>
