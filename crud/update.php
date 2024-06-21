@@ -3,12 +3,12 @@
 require_once "../db/config.php";
  
 // Define variables and initialize with empty values
-$name = $address = $salary = "";
-$name_err = $address_err = $salary_err = "";
+$name = $address = $salary = $year_level = "";
+$name_err = $address_err = $salary_err = $year_level_err = "";
  
 // Processing form data when form is submitted
-if(isset($_POST["id"]) && !empty($_POST["id"])){
-    // Get hidden input value
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    // Validate ID
     $id = $_POST["id"];
     
     // Validate name
@@ -21,7 +21,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $name = $input_name;
     }
     
-    // Validate address address
+    // Validate address
     $input_address = trim($_POST["address"]);
     if(empty($input_address)){
         $address_err = "Please enter an address.";     
@@ -39,22 +39,32 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $salary = $input_salary;
     }
     
-    // Check input errors before inserting in database
-    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+    // Validate year_level
+    $input_year_level = trim($_POST["year_level"]);
+    if(empty($input_year_level) || $input_year_level == "Choose..."){
+        $year_level_err = "Please select a year level.";
+    } else {
+        $year_level = $input_year_level;
+    }
+    
+    // Check input errors before updating in database
+    if(empty($name_err) && empty($address_err) && empty($salary_err) && empty($year_level_err)){
         // Prepare an update statement
-        $sql = "UPDATE employees SET name=:name, address=:address, salary=:salary WHERE id=:id";
+        $sql = "UPDATE employees SET name=:name, address=:address, salary=:salary, year_level=:year_level WHERE id=:id";
  
         if($stmt = $pdo->prepare($sql)){
             // Bind variables to the prepared statement as parameters
             $stmt->bindParam(":name", $param_name);
             $stmt->bindParam(":address", $param_address);
             $stmt->bindParam(":salary", $param_salary);
+            $stmt->bindParam(":year_level", $param_year_level);
             $stmt->bindParam(":id", $param_id);
             
             // Set parameters
             $param_name = $name;
             $param_address = $address;
             $param_salary = $salary;
+            $param_year_level = $year_level;
             $param_id = $id;
             
             // Attempt to execute the prepared statement
@@ -99,6 +109,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                     $name = $row["name"];
                     $address = $row["address"];
                     $salary = $row["salary"];
+                    $year_level = $row["year_level"];
                 } else{
                     // URL doesn't contain valid id. Redirect to error page
                     header("location: error.php");
@@ -143,7 +154,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                 <div class="col-md-12">
                     <h2 class="mt-5">Update Record</h2>
                     <p>Please edit the input values and submit to update the employee record.</p>
-                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="form-group">
                             <label>Name</label>
                             <input type="text" name="name" class="form-control <?php echo (!empty($name_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>">
@@ -158,6 +169,17 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                             <label>Salary</label>
                             <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
                             <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputState">Year Level</label>
+                            <select id="inputState" name="year_level" class="form-control <?php echo (!empty($year_level_err)) ? 'is-invalid' : ''; ?>">
+                                <option value="Choose..." <?php if($year_level == 'Choose...') echo 'selected'; ?>>Choose...</option>
+                                <option value="First Year" <?php if($year_level == 'First Year') echo 'selected'; ?>>First Year</option>
+                                <option value="Second Year" <?php if($year_level == 'Second Year') echo 'selected'; ?>>Second Year</option>
+                                <option value="Third Year" <?php if($year_level == 'Third Year') echo 'selected'; ?>>Third Year</option>
+                                <option value="Fourth Year" <?php if($year_level == 'Fourth Year') echo 'selected'; ?>>Fourth Year</option>
+                            </select>
+                            <span class="invalid-feedback"><?php echo $year_level_err;?></span>
                         </div>
                         <input type="hidden" name="id" value="<?php echo $id; ?>"/>
                         <input type="submit" class="btn btn-primary" value="Submit">
