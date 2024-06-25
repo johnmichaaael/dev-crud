@@ -5,41 +5,41 @@ require_once "../db/config.php";
 // Define variables and initialize with empty values
 $name = $address = $salary = $year_level = "";
 $name_err = $address_err = $salary_err = $year_level_err = "";
-
+ 
 // Flag to check if the form was submitted successfully
 $form_submitted = false;
 $duplicate_record = false;
- 
+
 // Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate name
     $input_name = trim($_POST["name"]);
-    if(empty($input_name)){
+    if (empty($input_name)) {
         $name_err = "Please enter a name.";
-    } elseif(!filter_var($input_name, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
+    } elseif (!filter_var($input_name, FILTER_VALIDATE_REGEXP, array("options" => array("regexp" => "/^[a-zA-Z\s]+$/")))) {
         $name_err = "Please enter a valid name.";
-    } else{
+    } else {
         $name = $input_name;
     }
     
     // Validate address
     $input_address = trim($_POST["address"]);
-    if(empty($input_address)){
+    if (empty($input_address)) {
         $address_err = "Please enter an address.";     
-    } else{
+    } else {
         $address = $input_address;
     }
     
     // Validate salary
     $input_salary = trim($_POST["salary"]);
-    if(empty($input_salary)){
+    if (empty($input_salary)) {
         $salary_err = "Please enter the salary amount.";     
-    } elseif(!ctype_digit($input_salary)){
+    } elseif (!ctype_digit($input_salary)) {
         $salary_err = "Please enter a positive integer value.";
-    } else{
+    } else {
         $salary = $input_salary;
     }
-
+    
     // Validate year_level
     $input_year_level = trim($_POST["year_level"]);
     if (empty($input_year_level) || $input_year_level == "Choose...") {
@@ -47,20 +47,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     } else {
         $year_level = $input_year_level;
     }
-    
+
     // Check input errors before inserting in database
-    if (empty($name_err) && empty($address_err) && empty($salary_err) && empty($year_level_err)){
-
-        // Check if the record already exists
+    if (empty($name_err) && empty($address_err) && empty($salary_err) && empty($year_level_err)) {
+        // Prepare an insert statement
         $sql = "SELECT COUNT(*) FROM employees WHERE name = :name AND address=:address AND salary=:salary AND year_level = :year_level";
+        // $sql = "INSERT INTO employees (name, address, salary, year_level) VALUES (:name, :address, :salary, :year_level)";
 
-        if($stmt = $pdo->prepare($sql)){
+        if ($stmt = $pdo->prepare($sql)) {
             // Set parameters
             $param_name = $name;
             $param_address = $address;
             $param_salary = $salary;
             $param_year_level = $year_level;
-  
+            
             // Bind variables to the prepared statement as parameters
             $stmt->bindParam(":name", $param_name);
             $stmt->bindParam(":address", $param_address);
@@ -68,47 +68,47 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $stmt->bindParam(":year_level", $param_year_level);
             
             // Attempt to execute the prepared statement
-            if($stmt->execute()){
-                if ($stmt->fetchColumn() > 0) {
-                    // Duplicate record found
-                    $duplicate_record = true;
-                } else {
-                    
-                    $sql = "INSERT INTO employees (name, address, salary, year_level) VALUES (:name, :address, :salary, :year_level)";
+            if ($stmt->execute()) {
+                // Record already exists
+                $duplicate_record = true;
+            } else {
+                // Error in execution
+                $sql = "INSERT INTO employees (name, address, salary) VALUES (:name, :address, :salary)";
+                
+                if ($stmt = $pdo->prepare($sql)) {
+                    // Set parameters
+                    $param_name = $name;
+                    $param_address = $address;
+                    $param_salary = $salary;
+                    $param_year_level = $year_level;
 
-                    if ($stmt = $pdo->prepare($sql)) {
-                          // Set parameters
-                        $param_name = $name;
-                        $param_address = $address;
-                        $param_salary = $salary;
-                        $param_year_level = $year_level;
-            
-                        // Bind variables to the prepared statement as parameters
-                        $stmt->bindParam(":name", $param_name);
-                        $stmt->bindParam(":address", $param_address);
-                        $stmt->bindParam(":salary", $param_salary);
-                        $stmt->bindParam(":year_level", $param_year_level);
+                    // Bind variables to the prepared statement as parameters
+                    $stmt->bindParam(":name", $param_name);
+                    $stmt->bindParam(":address", $param_address);
+                    $stmt->bindParam(":salary", $param_salary);
+                    $stmt->bindParam(":year_level", $param_year_level);
 
-                        // Attempt to execute the prepared statement
-                        if ($stmt->execute()) {
-                            // Set the form submission flag to true
-                            $form_submitted = true;
-                            $name = $address = $salary = $year_level = "";
-                        } else {
-                            echo "Oops! Something went wrong. Please try again later.";
-                        }
-                    }    
-                }
-            } else{
-                echo "Oops! Something went wrong. Please try again later.";
+                    // Attempt to execute the prepared statement
+                    if ($stmt->execute()) {
+                        // Set the form submission flag to true
+                        $form_submitted = true;
+                        $name = $address = $salary = $year_level = "";
+                    } else {
+                        echo "Oops! Something went wrong. Please try again later.";
+                    }
+                }    
             }
-        }  
-        // Close statement
-        unset($stmt);
+        } else {
+            echo "Oops! Something went wrong. Please try again later.";
+        }
     }
-    // Close connection
-    unset($pdo);
 }
+
+// Close statement
+unset($stmt);
+
+// Close connection
+unset($pdo);
 ?>
  
 <!DOCTYPE html>
@@ -171,46 +171,46 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>        
         </div>
     </div>
-<!-- Bootstrap JS -->
+    <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
- <!-- Toast HTML -->
+<!-- Toast HTML -->
 <div class="toast-container">
-    <div id="successToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Success</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-        New record added successfully!
-        </div>
-    </div>
+   <div id="successToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+       <div class="toast-header">
+           <strong class="me-auto">Success</strong>
+           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+       </div>
+       <div class="toast-body">
+       New record added successfully!
+       </div>
+   </div>
 
-    <div id="duplicateToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Duplicate</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            Duplicate record found. No new record added.
-        </div>
-    </div>
+   <div id="duplicateToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+       <div class="toast-header">
+           <strong class="me-auto">Duplicate</strong>
+           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+       </div>
+       <div class="toast-body">
+           Duplicate record found. No new record added.
+       </div>
+   </div>
 </div>
 
 <!-- Trigger Toast JS -->
 <?php if ($form_submitted): ?>
-    <script type="text/javascript">
-        var successToastEl = document.getElementById('successToast');
-        var successToast = new bootstrap.Toast(successToastEl);
-        successToast.show();
-        document.getElementById('facultyForm').reset();
-    </script>
+   <script type="text/javascript">
+       var successToastEl = document.getElementById('successToast');
+       var successToast = new bootstrap.Toast(successToastEl);
+       successToast.show();
+       document.getElementById('facultyForm').reset();
+   </script>
 <?php elseif ($duplicate_record): ?>
-    <script type="text/javascript">
-        var duplicateToastEl = document.getElementById('duplicateToast');
-        var duplicateToast = new bootstrap.Toast(duplicateToastEl);
-        duplicateToast.show();
-    </script>
+   <script type="text/javascript">
+       var duplicateToastEl = document.getElementById('duplicateToast');
+       var duplicateToast = new bootstrap.Toast(duplicateToastEl);
+       duplicateToast.show();
+   </script>
 <?php endif; ?>
 </body>
 </html>
