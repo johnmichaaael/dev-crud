@@ -58,6 +58,14 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     } else{
         $salary = $input_salary;
     }
+
+    // Validate year_level
+    $input_year_level = trim($_POST["year_level"]);
+    if(empty($input_year_level) || $input_year_level == "Choose..."){
+        $year_level_err = "Please select a year level.";
+    } else {
+        $year_level = $input_year_level;
+    }
     
     // Check input errors before inserting in database
     if(empty($last_name_err) && empty($first_name_err) && empty($middle_name_err) && empty($address_err) && empty($salary_err)&& empty($year_level_err)){
@@ -200,13 +208,14 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                         </div>
                         <div class="form-group">
                             <label for="inputState">Year Level</label>
-                            <select id="inputState" name="year_level" class="form-control">
-                                <option value="" selected>Choose...</option>
-                                <option value="First Year">First Year</option>
-                                <option value="Second Year">Second Year</option>
-                                <option value="Third Year">Third Year</option>
-                                <option value="Fourth Year">Fourth Year</option>
+                            <select id="inputState" name="year_level" class="form-control <?php echo (!empty($year_level_err)) ? 'is-invalid' : ''; ?>">
+                                <option value="" <?php echo ($year_level == '') ? 'selected' : ''; ?>>Choose...</option>
+                                <option value="First Year" <?php echo ($year_level == 'First Year') ? 'selected' : ''; ?>>First Year</option>
+                                <option value="Second Year" <?php echo ($year_level == 'Second Year') ? 'selected' : ''; ?>>Second Year</option>
+                                <option value="Third Year" <?php echo ($year_level == 'Third Year') ? 'selected' : ''; ?>>Third Year</option>
+                                <option value="Fourth Year" <?php echo ($year_level == 'Fourth Year') ? 'selected' : ''; ?>>Fourth Year</option>
                             </select>
+                            <span class="invalid-feedback"><?php echo $year_level_err;?></span>
                         </div>
                         <input type="hidden" name="id" value="<?php echo $id; ?>"/>
                         <input type="submit" class="btn btn-primary" value="Submit">
