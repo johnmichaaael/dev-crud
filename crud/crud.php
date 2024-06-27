@@ -10,7 +10,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
         .wrapper{
-            width: 600px;
+            width: 900px;
             margin: 0 auto;
         }
         table tr td:last-child{
@@ -73,9 +73,11 @@
                               echo "<thead>";
                                    echo "<tr>";
                                        echo "<th>#</th>";
-                                       echo "<th>Name</th>";
+                                       echo "<th>Last Name</th>";
+                                       echo "<th>First Name</th>";
+                                       //echo "<th>Middle Name</th>";
                                        echo "<th>Address</th>";
-                                       echo "<th>Salary</th>";
+                                       // echo "<th>Salary</th>";
                                        echo "<th>Year Level</th>";
                                        echo "<th>Time In</th>";
                                        echo "<th>Action</th>";
@@ -85,9 +87,11 @@
                                 while($row = $result->fetch()){
                                     echo "<tr>";
                                         echo "<td>" . $row['id'] . "</td>";
-                                         echo "<td>" . $row['name'] . "</td>";
+                                         echo "<td>" . $row['last_name'] . "</td>";
+                                         echo "<td>" . $row['first_name'] . "</td>";
+                                         // echo "<td>" . $row['middle_name'] . "</td>";
                                          echo "<td>" . $row['address'] . "</td>";
-                                         echo "<td>" . $row['salary'] . "</td>";
+                                         // echo "<td>" . $row['salary'] . "</td>";
                                          echo "<td>" . $row['year_level'] . "</td>"; 
                                          echo "<td>" . $row['time'] . "</td>";
                                          echo "<td>";
